@@ -31,11 +31,43 @@ router.get('/:id', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-
+    const newAction = req.body;
+    //Must contain: project_id, description, notes
+    if (newAction.project_id && newAction.description && newAction.notes) {
+        actionDB.insert(newAction)
+        .then((info) => {
+            res.status(201).json(info);
+        })
+        .catch((error) => {
+            res.status(500).json({errorMessage: `Server had an error of: ${error} trying to post a new action.`})
+        })
+    }
+    else {
+        res.status(400).json({message: 'Posting a new action must contain fields for a project_id, description and notes'});
+    }
 })
 
 router.put('/:id', (req, res) => {
-
+    const {id} = req.params;
+    const updatedAction = req.body;
+    actionDB.get(id)
+    .then((action) => {
+        if (action) {
+            actionDB.update(id, updatedAction)
+            .then((action) => {
+                res.status(200).json(action);
+            })
+            .catch((error) => {
+                res.status(500).json({errorMessage: `Server had an error of: ${error} trying to update action id: ${id}`})
+            })
+        }
+        else {
+            res.status(404).json({error: `Action id: ${id} not found.`});
+        }
+    })
+    .catch((error) => {
+        res.status(500).json({errorMessage: `Server had an error of: ${error} trying to get action id: ${id}`})
+    })
 })
 
 router.delete('/:id', (req, res) => {
@@ -45,7 +77,7 @@ router.delete('/:id', (req, res) => {
     .then((action) => {
         if (action) {
             deletedAction = action;
-            actionDB.delete(id)
+            actionDB.remove(id)
             .then((deleteRes) => {
                 console.log(deleteRes);
                 res.status(200).json(deletedAction);
