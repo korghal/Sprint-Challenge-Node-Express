@@ -59,7 +59,26 @@ router.post('/', (req, res) => {
 })
 
 router.put('/:id', (req, res) => {
-
+    const {id} = req.params;
+    const updatedProject = req.body;
+    projectDB.get(id)
+    .then((project) => {
+        if (project) {
+            projectDB.update(id, updatedProject)
+            .then((project) => {
+                res.status(200).json(project);
+            })
+            .catch((error) => {
+                res.status(500).json({errorMessage: `Server had an error of: ${error} trying to modify project id: ${id}`});
+            })
+        }
+        else {
+            res.status(404).json({error: `Project id: ${id} not found.`})
+        }
+    })
+    .catch((error) => {
+        res.status(500).json({errorMessage: `Server had an error of: ${error} trying to get project id: ${id}`});
+    })
 })
 
 router.delete('/:id', (req, res) => {
