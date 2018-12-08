@@ -79,8 +79,7 @@ router.delete('/:id', (req, res) => {
             deletedAction = action;
             actionDB.remove(id)
             .then((deleteRes) => {
-                console.log(deleteRes);
-                res.status(200).json(deletedAction);
+                res.status(200).json({deleteResponse: deleteRes, actionDeleted: deletedAction});
             })
         }
         else {
